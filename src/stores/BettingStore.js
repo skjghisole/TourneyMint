@@ -2,7 +2,7 @@ import TruffleContract from 'truffle-contract';
 import BettingContract from '../deployedContract/Betting.json';
 import { action, observable } from 'mobx';
 import { StringToBytes } from '../utils';
-import { Finney, Ether, Kwei } from '../currencies';
+import {  Kwei } from '../currencies';
 
  class BettingStore {
      constructor(rootStore, providerStore, client) {
