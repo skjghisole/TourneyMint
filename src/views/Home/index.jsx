@@ -14,7 +14,7 @@ import IconButton from "../../components/IconButton";
 
 import teamStyle from "../../assets/jss/teamStyle";
 
-import skj from "../../assets/imgs/faces/skj.jpg";
+import skj from "../../assets/imgs/skj.jpg";
 
 class TeamSection extends React.Component {
     render() {
