@@ -5,10 +5,9 @@ import { StringToBytes } from '../utils';
 import {  Kwei } from '../currencies';
 
  class BettingStore {
-     constructor(rootStore, providerStore, client) {
+     constructor(rootStore, providerStore) {
         this._rootStore = rootStore;
         this._providerStore = providerStore
-        this._client = client;
      }
 
      @observable contract = undefined;

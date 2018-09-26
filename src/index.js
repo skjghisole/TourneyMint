@@ -6,7 +6,7 @@ import { HashRouter as Router } from 'react-router-dom'
 import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
-import client from './client';
+// import client from './client';
 import {
     ProviderStore,
     RootStore,
@@ -14,8 +14,8 @@ import {
 } from './stores';
 
 const rootStore = new RootStore();
-const providerStore = new ProviderStore(rootStore, client);
-const bettingStore = new BettingStore(rootStore, providerStore, client);
+const providerStore = new ProviderStore(rootStore);
+const bettingStore = new BettingStore(rootStore, providerStore);
 
 const stores = {
     rootStore,

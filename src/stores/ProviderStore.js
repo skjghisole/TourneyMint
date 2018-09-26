@@ -2,9 +2,8 @@ import { observable, action } from 'mobx';
 import Web3 from 'web3';
 
 class ProviderStore {
-    constructor(rootStore, client) {
+    constructor(rootStore) {
         this._rootStore = rootStore;
-        this._client = client;
     }
 
     @observable web3 = window.web3;
