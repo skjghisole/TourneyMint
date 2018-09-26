@@ -3,8 +3,7 @@ import { inject, observer } from 'mobx-react';
 import Web3 from 'web3';
 import "./App.css";
 
-
-import RoutedApp from './routes';
+import Skeleton from "./views/Skeleton";
 const provider = new Web3.providers.HttpProvider('https://ropsten.infura.io/v3/8fb4ef458a6c43a9864e4e072e55057f');
 const web3 = new Web3(provider);
 
@@ -26,12 +25,7 @@ class App extends Component {
     const { web3, connect } = providerStore;
     return (
       <div className="App">
-        <div>
-          {
-            !web3 ? <button onClick={()=>connect()}>Connect Now!</button> : <h1>Connected!</h1>
-          }
-        </div>
-        <RoutedApp />
+        <Skeleton />
       </div>
     );
   }

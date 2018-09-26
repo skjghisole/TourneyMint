@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
+import { withStyles } from '@material-ui/core';
+
+import style from '../../assets/jss/teamStyle';
+
 
 class Betting extends Component {
   componentWillMount () {
@@ -10,7 +14,7 @@ class Betting extends Component {
   }
 
   render () {
-    const { bettingStore } = this.props
+    const { bettingStore, classes } = this.props
     const {
       contract,
       setParticipants,
@@ -24,11 +28,13 @@ class Betting extends Component {
       openBettingWindow,
       timeLeft,
   } = bettingStore;
-    return !contract ? <h1>Loading...</h1> :
-    <div>
+    return !contract ? <h1 className={classes.title}>Loading...</h1> :
+    <div
+      className={classes.section}
+    >
         Contract Deployed!
-        <h1>Tournament Status: {tournamentStatus}</h1>
-        <h2>Participants: {participants.map((participant, key) =>
+        <h1 className={classes.title}>Tournament Status: {tournamentStatus}</h1>
+        <h2 className={classes.description}>Participants: {participants.map((participant, key) =>
             <div key={key}>
                 {participant}
             </div>)
@@ -37,13 +43,13 @@ class Betting extends Component {
         <button onClick={()=>startTournament()}>Start Tournament</button>
         <button onClick={()=>betOnParticipant("karl")}>For bet</button>
         <button onClick={()=>openBettingWindow()}>Open Betting Window</button>
-
-        <h1>{poolMoney}</h1>
+        {console.log(poolMoney)}
+        <h1 className={classes.description}>{poolMoney}</h1>
         <button onClick={()=>getBets("karl")}>Check better amount</button>
-        <h2>{bets}</h2>
-        <h3>{timeLeft}</h3>
+        <h2 className={classes.description}>{bets}</h2>
+        <h3 className={classes.description}>{timeLeft}</h3>
     </div>
   }
 }
 
-export default inject('bettingStore')(observer(Betting))
+export default withStyles(style)(inject('bettingStore')(observer(Betting)));
