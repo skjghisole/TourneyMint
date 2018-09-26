@@ -1,5 +1,5 @@
 import TruffleContract from 'truffle-contract';
-import BettingContract from '../deployedContract/Betting.json';
+import BettingContract from '../deployedContracts/Betting.json';
 import { action, observable } from 'mobx';
 import { StringToBytes } from '../utils';
 import {  Kwei } from '../currencies';
