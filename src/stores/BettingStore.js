@@ -1,8 +1,8 @@
 import TruffleContract from 'truffle-contract';
 import BettingContract from '../deployedContracts/Betting.json';
-import { action, observable } from 'mobx';
-import { StringToBytes } from '../utils';
-import {  Kwei } from '../currencies';
+import { action, observable, toJS } from 'mobx';
+import { StringToBytes, BytesToString } from '../utils';
+import { Kwei, Ether } from '../currencies';
 
  class BettingStore {
      constructor(rootStore, providerStore) {
@@ -10,12 +10,32 @@ import {  Kwei } from '../currencies';
         this._providerStore = providerStore
      }
 
-     @observable contract = undefined;
+     @observable contract;
      @observable participants = [];
      @observable poolMoney = 0;
+     @observable bettedOn = {};
      @observable bets = 0;
-     @observable tournamentStatus;
-     @observable timeLeft;
+     @observable game;
+     @observable hoveredTeamId;
+     @observable status;
+     @observable totalBetForEachParticipants;
+
+     @action
+     setBet = (id, value) => {
+       this.bettedOn[id] = { id, value: value*Ether };
+     }
+
+     @action
+     submitBet = () => {
+      const { contract, _providerStore } = this;
+      const { accounts } = _providerStore;
+      Object.keys(this.bettedOn).forEach(async (key) => {
+        const { value } = this.bettedOn[key];
+        await contract.bet(StringToBytes(key), {from: accounts[0], value});
+      });
+      this.bettedOn = {};
+      this._rootStore.uiStore.closeDialog();
+    }
 
      @action
      deployContract = async (id) => {
@@ -32,47 +52,42 @@ import {  Kwei } from '../currencies';
 
         this.getPoolMoney();
         this.updateStatus();
-        this.updateParticipants();
-        this.updateTimer();
     }
 
     @action
     updateStatus = async () => {
       const { contract } = this;
       const status = await contract.getTournamentStatus();
-      this.tournamentStatus = status;
+      this.status = status;
     };
 
     @action
-    updateTimer = async () => {
-      const { contract } = this;
-      const timeLeft = await contract.getTimeLeft();
+    openGameControllerDialog = (game, content) => {
+        if(!game.sides.home.team || !game.sides.visitor.team){
+            return;
+        }
+        this._rootStore.uiStore.setDialog(game.name, content);
+        this._rootStore.uiStore.openDialog();
+    }
 
-      this.timeLeft = timeLeft.toNumber();
+
+    @action
+    hoverTeamChange = (team) => {
+        this.hoveredTeamId = team
     }
 
     @action
-    updateParticipants = async () => {
+    getGame = async () => {
+      const { connect } = this._providerStore;
+      connect();
       const { contract } = this;
-      const participants = await contract.getParticipants();
-      this.participants = participants;
+      if (contract) {
+        const hash = await contract.getGameHash();
+        const resp = await fetch(`https://ipfs.io/ipfs/${hash}`);
+        const game = await resp.json();
+        this.game = game._gameBracket;
+      }
     }
-
-     @action
-     startTournament = async () => {
-       const { accounts } = this._providerStore;
-       const { contract } = this;
-       await contract.startTournament({from: accounts[0]})
-     }
-
-     @action
-     setParticipants = async (ids) => {
-        const { accounts } = this._providerStore;
-        const { contract } = this;
-        console.log(contract);
-        await contract.setParticipants(ids.map(id => StringToBytes(id)), { from: accounts[0] });
-        this.updateParticipants();
-     }
 
      @action
      betOnParticipant = async (id) => {
@@ -82,11 +97,22 @@ import {  Kwei } from '../currencies';
         this.getPoolMoney();
     }
 
+    @action
+    getParticipants = async () => {
+      const { contract } = this;
+      const participants = await contract.getParticipants();
+      const totalBetForEachParticipants = await Promise.all(participants.map( async (participant) => {
+        const amount = await this.getBets(participant);
+        return ({ participant: BytesToString(participant), amount});
+      }));
+      this.totalBetForEachParticipants = totalBetForEachParticipants;
+      this.participants = participants;
+    }
+
 
     @action
     getPoolMoney = async () => {
         const { contract } = this;
-
         if (contract) {
             const result = await contract.getPoolMoney();
             this.poolMoney = result.toNumber();
@@ -94,24 +120,17 @@ import {  Kwei } from '../currencies';
     }
 
     @action
-    openBettingWindow = async () => {
-      const { _providerStore, contract, timeLeft, updateStatus, updateTimer } = this;
-      const { accounts } = _providerStore;
-
-      await contract.openBettingWindow({ from: accounts[0] });
-      if (timeLeft) {
-        while(timeLeft > 0) {
-          setInterval(()=>updateTimer(), 1000);
-        }
-      }
-      updateStatus();
-    }
-
-    @action
     getBets = async (id) => {
         const { contract } = this;
         const result = await contract.totalBetFor(StringToBytes(id))
-        this.bets = result.toNumber();
+        return result.toNumber();
+    }
+
+    @action
+    claimWinnings = async () => {
+      const { contract, _providerStore } = this;
+      const { accounts } = _providerStore;
+      await contract.claimWinnings({ from: accounts[0] });
     }
 
  }

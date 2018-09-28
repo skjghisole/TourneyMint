@@ -1,15 +1,26 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
-import { withStyles } from '@material-ui/core';
+import { withStyles, Button } from '@material-ui/core';
+import { BracketGenerator } from 'react-tournament-bracket';
+import GameComponent from '../../components/GameComponent';
+import GridContainer from '../../components/Grid/GridContainer';
+import GridItem from '../../components/Grid/GridItem';
 
 import style from '../../assets/jss/teamStyle';
 
 
 class Betting extends Component {
-  componentWillMount () {
+  async componentWillMount () {
     const { bettingStore, match: { params: { id } }} = this.props;
+    const { deployContract, getGame, updateStatus, getPoolMoney, getParticipants } = bettingStore;
     if (id) {
-      bettingStore.deployContract(id);
+      await deployContract(id);
+      getParticipants();
+      setInterval(()=>{
+        getGame()
+        updateStatus()
+        getPoolMoney()
+      }, 4000);
     }
   }
 
@@ -17,37 +28,34 @@ class Betting extends Component {
     const { bettingStore, classes } = this.props
     const {
       contract,
-      setParticipants,
-      participants,
-      betOnParticipant,
+      game,
+      status,
       poolMoney,
-      getBets,
-      bets,
-      startTournament,
-      tournamentStatus,
-      openBettingWindow,
-      timeLeft,
-  } = bettingStore;
+      totalBetForEachParticipants,
+      claimWinnings
+    } = bettingStore;
     return !contract ? <h1 className={classes.title}>Loading...</h1> :
     <div
       className={classes.section}
     >
         Contract Deployed!
-        <h1 className={classes.title}>Tournament Status: {tournamentStatus}</h1>
-        <h2 className={classes.description}>Participants: {participants.map((participant, key) =>
-            <div key={key}>
-                {participant}
-            </div>)
-        }</h2>
-        <button onClick={()=>setParticipants(['jake', 'jake'])}>Set Participants</button>
-        <button onClick={()=>startTournament()}>Start Tournament</button>
-        <button onClick={()=>betOnParticipant("karl")}>For bet</button>
-        <button onClick={()=>openBettingWindow()}>Open Betting Window</button>
-        {console.log(poolMoney)}
-        <h1 className={classes.description}>{poolMoney}</h1>
-        <button onClick={()=>getBets("karl")}>Check better amount</button>
-        <h2 className={classes.description}>{bets}</h2>
-        <h3 className={classes.description}>{timeLeft}</h3>
+        <GridContainer direction="column">
+          <h1 className={classes.title}>Tournament Status: {status}</h1>
+          <h3 className={classes.smallTitle}>Total Pool Money: {poolMoney}</h3>
+          <GridItem sm={12}>
+            { game && <BracketGenerator gameDimensions={{ "height": 125, "width": 350 }} games={[game]} GameComponent={GameComponent}/> }
+          </GridItem>
+          <GridItem sm={12}>
+            {
+              totalBetForEachParticipants && totalBetForEachParticipants.map((x, index) =>
+                <h4 className={classes.smallTitle} key={index}>{x.participant}: {x.amount}</h4>
+              )
+            }
+          </GridItem>
+          <GridItem sm={12}>
+            {status === "ended" && <Button onClick={()=>claimWinnings()}>CLAIM WINNINGS!</Button>}
+          </GridItem>
+        </GridContainer>
     </div>
   }
 }

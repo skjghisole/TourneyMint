@@ -12,17 +12,20 @@ import "./assets/scss/styles.css";
 import {
     ProviderStore,
     RootStore,
-    BettingStore
+    BettingStore,
+    UIStore
 } from './stores';
 
 const rootStore = new RootStore();
 const providerStore = new ProviderStore(rootStore);
 const bettingStore = new BettingStore(rootStore, providerStore);
+const uiStore = new UIStore(rootStore);
 
 const stores = {
     rootStore,
     providerStore,
-    bettingStore
+    bettingStore,
+    uiStore
 };
 
 rootStore.setStore(stores);

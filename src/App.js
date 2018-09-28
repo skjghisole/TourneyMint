@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { inject, observer } from 'mobx-react';
 import Web3 from 'web3';
 import "./App.css";
+import Dialog from './components/GameComponent/GameComponentDialog';
 
 import Skeleton from "./views/Skeleton";
 const provider = new Web3.providers.HttpProvider('https://ropsten.infura.io/v3/8fb4ef458a6c43a9864e4e072e55057f');
@@ -26,6 +27,7 @@ class App extends Component {
     return (
       <div className="App">
         <Skeleton />
+        <Dialog />
       </div>
     );
   }
