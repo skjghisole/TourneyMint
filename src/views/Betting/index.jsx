@@ -24,6 +24,14 @@ class Betting extends Component {
     }
   }
 
+  async componentDidMount() {
+    const { bettingStore } = this.props;
+    const { updateTotalBetForEachParticipants } = bettingStore;
+    setInterval(() => {
+        updateTotalBetForEachParticipants()
+      }, 2000)
+  }
+
   render () {
     const { bettingStore, classes } = this.props
     const {

@@ -101,12 +101,24 @@ import { Kwei, Ether } from '../currencies';
     getParticipants = async () => {
       const { contract } = this;
       const participants = await contract.getParticipants();
-      const totalBetForEachParticipants = await Promise.all(participants.map( async (participant) => {
+      const totalBetForEachParticipants = await Promise.all(participants.map(async (participant) => {
         const amount = await this.getBets(participant);
         return ({ participant: BytesToString(participant), amount});
       }));
       this.totalBetForEachParticipants = totalBetForEachParticipants;
       this.participants = participants;
+    }
+
+    @action
+    updateTotalBetForEachParticipants = async () => {
+      if(!this.participants) {
+        return;
+      }
+      const totalBetForEachParticipants = await Promise.all(this.participants.map(async (participant) => {
+        const amount = await this.getBets(participant);
+        return ({ participant: BytesToString(participant), amount});
+      }));
+      this.totalBetForEachParticipants = totalBetForEachParticipants;
     }
 
 
@@ -122,7 +134,7 @@ import { Kwei, Ether } from '../currencies';
     @action
     getBets = async (id) => {
         const { contract } = this;
-        const result = await contract.totalBetFor(StringToBytes(id))
+        const result = await contract.totalBetFor(id)
         return result.toNumber();
     }
 
