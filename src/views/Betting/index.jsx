@@ -40,7 +40,8 @@ class Betting extends Component {
       status,
       poolMoney,
       totalBetForEachParticipants,
-      claimWinnings
+      claimWinnings,
+      timeLeft
     } = bettingStore;
     return !contract ? <h1 className={classes.title}>Loading...</h1> :
     <div
@@ -48,7 +49,7 @@ class Betting extends Component {
     >
         Contract Deployed!
         <GridContainer direction="column">
-          <h1 className={classes.title}>Tournament Status: {status}</h1>
+          <h1 className={classes.title}>Tournament Status: {status === "betting" ? (timeLeft < Date.now() ? "Betting Closed" : status) : status}</h1>
           <h3 className={classes.smallTitle}>Total Pool Money: {poolMoney}</h3>
           <GridItem sm={12}>
             { game && <BracketGenerator gameDimensions={{ "height": 125, "width": 350 }} games={[game]} GameComponent={GameComponent}/> }

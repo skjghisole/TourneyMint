@@ -19,6 +19,7 @@ import { Kwei, Ether } from '../currencies';
      @observable hoveredTeamId;
      @observable status;
      @observable totalBetForEachParticipants;
+     @observable timeLeft;
 
      @action
      setBet = (id, value) => {
@@ -52,6 +53,7 @@ import { Kwei, Ether } from '../currencies';
 
         this.getPoolMoney();
         this.updateStatus();
+        this.getTimeLeft();
     }
 
     @action
@@ -129,6 +131,19 @@ import { Kwei, Ether } from '../currencies';
             const result = await contract.getPoolMoney();
             this.poolMoney = result.toNumber();
         }
+    }
+
+
+    @action
+    getTimeLeft = async () => {
+        if(!this.contract) {
+            return;
+        }
+        if(this.timeLeft) {
+            return;
+        }
+        const timeLeft = await this.contract.dateToStart();
+        this.timeLeft = timeLeft.toNumber()*1000;
     }
 
     @action
