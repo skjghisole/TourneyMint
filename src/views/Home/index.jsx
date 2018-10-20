@@ -1,53 +1,42 @@
-import React from "react";
-// nodejs library that concatenates classes
-import classNames from "classnames";
-// material-ui components
+import React, { Component } from "react";
 import { withStyles } from "@material-ui/core";
+import { inject, observer } from 'mobx-react';
 
 // core components
 import GridContainer from "../../components/Grid/GridContainer";
 import GridItem from "../../components/Grid/GridItem";
-import Card from "../../components/Card";
-import CardBody from "../../components/Card/CardBody";
-import CardFooter from "../../components/Card/CardFooter";
-import IconButton from "../../components/IconButton";
+import ImageCard from '../../components/Card/ImageCard';
 
 import teamStyle from "../../assets/jss/teamStyle";
 
-import skj from "../../assets/imgs/skj.jpg";
-
-class TeamSection extends React.Component {
+class Home extends Component {
+    async componentWillMount() {
+        const { bettingStore: { getTournaments } } = this.props;
+        await getTournaments();
+    }
     render() {
-        const { classes } = this.props;
-        const imageClasses = classNames(
-            classes.imgRaised,
-            classes.imgRoundedCircle,
-            classes.imgFluid
-        );
+        const { classes, bettingStore: { tournaments } } = this.props;
         return (
             <div
                 className={classes.section}
             >
-                <h2 className={classes.title}>Here is our team</h2>
+                <h2 className={classes.title}>Tournaments:</h2>
                 <div>
                     <GridContainer alignContent={"center"} alignItems={"center"} justify={"center"}>
+                    {
+                      tournaments.map(tournament => (
                         <GridItem xs={12} sm={12} md={3}>
-                            <Card plain>
-                                <GridItem xs={12} sm={12} md={12} className={classes.itemGrid}>
-                                    <img src={skj} alt="..." className={imageClasses} />
-                                </GridItem>
-                                <h4 className={classes.cardTitle}>
-                                    Stephen Karl
-                                    <br />
-                                    <small className={classes.smallTitle}>Developer</small>
-                                </h4>
-                                <CardBody>
-                                    <p className={classes.description}>
-                                        A Software Engineering Student who develops World-class Web applications.
-                                    </p>
-                                </CardBody>
-                            </Card>
+                          <ImageCard
+                            title={tournament.name}
+                            text={tournament.status}
+                            statText={tournament.poolMoney}
+                            src={"https://res.cloudinary.com/dgm3l1csv/image/upload/v1540040144/image.jpg"}
+                            url={`/betting/${tournament.address}`}
+                          />
                         </GridItem>
+                      ))
+                    }
+
                     </GridContainer>
                 </div>
             </div>
@@ -55,4 +44,4 @@ class TeamSection extends React.Component {
     }
 }
 
-export default withStyles(teamStyle)(TeamSection);
+export default withStyles(teamStyle)(inject('bettingStore')(observer(Home)));

@@ -1,6 +1,6 @@
 import TruffleContract from 'truffle-contract';
-import BettingContract from '../deployedContracts/Betting.json';
-import { action, observable, toJS } from 'mobx';
+import BettingContract from '../deployedContracts/Tournament.json';
+import { action, observable } from 'mobx';
 import { StringToBytes, BytesToString } from '../utils';
 import { Kwei, Ether } from '../currencies';
 
@@ -20,6 +20,8 @@ import { Kwei, Ether } from '../currencies';
      @observable status;
      @observable totalBetForEachParticipants;
      @observable timeLeft;
+     @observable claimablePoolMoney = 0;
+     @observable tournaments = [];
 
      @action
      setBet = (id, value) => {
@@ -80,12 +82,11 @@ import { Kwei, Ether } from '../currencies';
 
     @action
     getGame = async () => {
-      const { connect } = this._providerStore;
-      connect();
       const { contract } = this;
       if (contract) {
         const hash = await contract.getGameHash();
         const resp = await fetch(`https://ipfs.io/ipfs/${hash}`);
+        console.log(resp);
         const game = await resp.json();
         this.game = game._gameBracket;
       }
@@ -157,7 +158,30 @@ import { Kwei, Ether } from '../currencies';
     claimWinnings = async () => {
       const { contract, _providerStore } = this;
       const { accounts } = _providerStore;
-      await contract.claimWinnings({ from: accounts[0] });
+      const claimedEvent = await contract.claimWinnings({ from: accounts[0] });
+      console.log(claimedEvent);
+    }
+
+    @action
+    getTournaments = async () => {
+      const { web3 } = this._providerStore;
+      const response = await fetch('https://tourney-mint-server.herokuapp.com/api/contracts');
+      const tournamentAddresses = await response.json();
+
+      const Contract = await TruffleContract(BettingContract);
+      Contract.setProvider(web3.currentProvider);
+      const tournamentContracts = await Promise.all(tournamentAddresses.map(async (address) => {
+        return await Contract.at(address);
+      }))
+      const tournaments = await Promise.all(tournamentContracts.map(async contract => {
+        const name = await contract.getTournamentName();
+        const status = await contract.getTournamentStatus();
+        const result = await contract.getPoolMoney();
+        const poolMoney = result.toNumber();
+        const { address } = contract;
+        return { name, status, poolMoney, address };
+      }));
+      this.tournaments = tournaments;
     }
 
  }

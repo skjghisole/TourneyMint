@@ -8,8 +8,6 @@ import Header from '../../components/Header'
 import Footer from "../../components/Footer";
 import GridContainer from "../../components/Grid/GridContainer";
 import GridItem from "../../components/Grid/GridItem";
-import Button from "../../components/Button";
-import HeaderLinks from "../../components/HeaderLinks";
 import Parallax from "../../components/Parallax";
 
 import styles from '../../assets/jss/landingPageStyles';
