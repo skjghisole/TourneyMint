@@ -1,1 +1,1 @@
-WELCOME DEAR USER
+https://tourneymint.netlify.com
