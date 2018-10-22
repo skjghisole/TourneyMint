@@ -14,6 +14,13 @@ class Home extends Component {
         const { bettingStore: { getTournaments } } = this.props;
         await getTournaments();
     }
+
+    componentDidMount() {
+      const { bettingStore: { getTournaments } } = this.props;
+      setInterval(async () => {
+        await getTournaments()
+      }, 4000)
+    }
     render() {
         const { classes, bettingStore: { tournaments } } = this.props;
         return (

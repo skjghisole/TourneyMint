@@ -12,22 +12,20 @@ import style from '../../assets/jss/teamStyle';
 class Betting extends Component {
   async componentWillMount () {
     const { bettingStore, match: { params: { id } }} = this.props;
-    const { deployContract, getGame, updateStatus, getPoolMoney, getParticipants } = bettingStore;
+    const { deployContract, getParticipants } = bettingStore;
     if (id) {
       await deployContract(id);
       getParticipants();
-      setInterval(()=>{
-        getGame()
-        updateStatus()
-        getPoolMoney()
-      }, 4000);
     }
   }
 
   async componentDidMount() {
     const { bettingStore } = this.props;
-    const { updateTotalBetForEachParticipants } = bettingStore;
+    const { updateTotalBetForEachParticipants, getGame, updateStatus, getPoolMoney } = bettingStore;
     setInterval(() => {
+        getGame()
+        updateStatus()
+        getPoolMoney()
         updateTotalBetForEachParticipants()
       }, 2000)
   }

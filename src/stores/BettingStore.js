@@ -55,7 +55,6 @@ import { Kwei, Ether } from '../currencies';
 
         this.getPoolMoney();
         this.updateStatus();
-        this.getTimeLeft();
     }
 
     @action
@@ -86,7 +85,6 @@ import { Kwei, Ether } from '../currencies';
       if (contract) {
         const hash = await contract.getGameHash();
         const resp = await fetch(`https://ipfs.io/ipfs/${hash}`);
-        console.log(resp);
         const game = await resp.json();
         this.game = game._gameBracket;
       }
